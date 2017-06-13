@@ -273,9 +273,6 @@
                    if (fullLine) {
                        lineStack.push(fullLine);
                    }
-                   // if (fullLine) {
-                   //     lineStack.push(fullLine);
-                   // };
                    var sta = ctx.getImageData(0, 0, w, h);
                    status.push(sta);
                };
@@ -335,26 +332,43 @@
            };
 
            function curve() {
-               var count = 1,
-                   start, ctrl, end;
-               back.onmousedown = null;
-               back.onclick = function(e) {
-                   var ev = e || window.e;
-                   if (count == 1) {
-                       start = canvasMousePos(back, event);
-                       count++
-                   } else if (count == 2) {
-                       ctrl = canvasMousePos(back, event);
-                       count++
-                   } else if (count == 3) {
-                       end = canvasMousePos(back, event);
-                       count = 0;
-                       var curveLine = new drawLine(ctx, start, end, ctrl);
-                       lineStack.push(curveLine);
-                       var sta = ctx.getImageData(0, 0, w, h);
-                       status.push(sta);
-                   }
-               }
+               var point = [];
+               var mousedown = false;
+               var curve = null;
+               back.onclick = null;
+               back.onmousedown = function(event) {
+                   var e = event || window.event;
+                   var pos = canvasMousePos(back, e);
+                   mousedown = true;
+                   point.push({
+                       x: pos.x,
+                       y: pos.y
+                   });
+               };
+               back.onmousemove = function(e) {
+                   if (mousedown) {
+                       var ev = e || window.e;
+                       var pos = canvasMousePos(back, ev);
+                       if (Math.abs(pos.x - point[point.length - 1].x) >= 20 && Math.abs(pos.y - point[point.length - 1].y) >= 20) {
+                           point.push({
+                               x: pos.x,
+                               y: pos.y
+                           });
+                           curve = new drawLine(ctx, false, false, 'curve', point);
+                           ctx.clearRect(0, 0, w, h);
+                           reDraw();
+                           curve.update();
+                       };
+                   };
+               };
+               back.onmouseup = function(e) {
+                   mousedown = false;
+                   if (curve) {
+                       lineStack.push(curve);
+                   };
+                   var sta = ctx.getImageData(0, 0, w, h);
+                   status.push(sta);
+               };
            };
 
            function rect() {

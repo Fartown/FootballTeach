@@ -28,6 +28,37 @@
     for (key in eventUtil) {
         HTMLElement.prototype[key] = eventUtil[key];
     };
+    /*根据已知点获取第i个控制点的坐标
+     *param ps   已知曲线将经过的坐标点
+     *param i    第i个坐标点
+     *param a,b  可以自定义的正数
+     */
+    function getCtrlPoint(ps, i, a, b) {
+        if (!a || !b) {
+            a = 0.25;
+            b = 0.25;
+        }
+        //处理两种极端情形
+        if (i < 1) {
+            var pAx = ps[0].x + (ps[1].x - ps[0].x) * a;
+            var pAy = ps[0].y + (ps[1].y - ps[0].y) * a;
+        } else {
+            var pAx = ps[i].x + (ps[i + 1].x - ps[i - 1].x) * a;
+            var pAy = ps[i].y + (ps[i + 1].y - ps[i - 1].y) * a;
+        }
+        if (i > ps.length - 3) {
+            var last = ps.length - 1
+            var pBx = ps[last].x - (ps[last].x - ps[last - 1].x) * b;
+            var pBy = ps[last].y - (ps[last].y - ps[last - 1].y) * b;
+        } else {
+            var pBx = ps[i + 1].x - (ps[i + 2].x - ps[i].x) * b;
+            var pBy = ps[i + 1].y - (ps[i + 2].y - ps[i].y) * b;
+        }
+        return {
+            pA: { x: pAx, y: pAy },
+            pB: { x: pBx, y: pBy }
+        }
+    }
 
     //拓展canvas虚线
     var context = document.getElementById('back').getContext('2d'),
@@ -140,7 +171,7 @@
                 this.y = y;
             }
         }
-    //状态栈,用于撤销恢复当前绘制的状态
+        //状态栈,用于撤销恢复当前绘制的状态
     var statusStack = function() {
         this.status = [];
         this.currentIndex = 0;
@@ -189,12 +220,17 @@
         }
     };
     // 画线
-    function drawLine(ctx, start, end, control, color) {
-        this.start = start;
-        this.end = end;
+    function drawLine(ctx, start, end, control, point, color) {
+        if (start) {
+            this.start = start;
+            this.end = end;
+        };
         this.ctx = ctx;
         this.control = control;
         this.color = color;
+        if (point) {
+            this.point = point;
+        };
         this.update();
     };
     drawLine.prototype = {
@@ -225,9 +261,14 @@
             this.ctx.strokeStyle = this.color || 'black';
             this.ctx.lineWidth = 1;
             this.ctx.beginPath();
-            this.ctx.moveTo(this.start.x, this.start.y);
-            this.ctx.quadraticCurveTo(this.ctrl.x, this.ctrl.y, this.end.x, this.end.y);
-            // this.ctx.closePath();
+            for (var i = 0; i < this.point.length; i++) {
+                if (i == 0) {
+                    this.ctx.moveTo(this.point[i].x, this.point[i].y);
+                } else {
+                    var ctrlP = getCtrlPoint(this.point, i - 1);
+                    this.ctx.bezierCurveTo(ctrlP.pA.x, ctrlP.pA.y, ctrlP.pB.x, ctrlP.pB.y, this.point[i].x, this.point[i].y);
+                }
+            };
             this.ctx.stroke();
             this.ctx.restore();
         },
@@ -236,7 +277,9 @@
                 this.drawFulline();
             } else if (this.control == 'dashed') {
                 this.drawDashedline();
-            };
+            } else if (this.control == 'curve') {
+                this.drawCurve();
+            }
         }
     };
     //文本绘制
