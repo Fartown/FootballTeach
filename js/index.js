@@ -385,6 +385,9 @@
                    };
                    var sta = ctx.getImageData(0, 0, w, h);
                    status.push(sta);
+                   back.onmousedown = null;
+                   back.onmousemove = null;
+                   back.onmouseup = null;
                };
            };
 
