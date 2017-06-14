@@ -335,6 +335,7 @@
                var point = [];
                var mousedown = false;
                var curve = null;
+               var final = [];
                back.onclick = null;
                back.onmousedown = function(event) {
                    var e = event || window.event;
@@ -349,21 +350,37 @@
                    if (mousedown) {
                        var ev = e || window.e;
                        var pos = canvasMousePos(back, ev);
-                       if (Math.abs(pos.x - point[point.length - 1].x) >= 20 && Math.abs(pos.y - point[point.length - 1].y) >= 20) {
-                           point.push({
-                               x: pos.x,
-                               y: pos.y
-                           });
-                           curve = new drawLine(ctx, false, false, 'curve', point);
-                           ctx.clearRect(0, 0, w, h);
-                           reDraw();
-                           curve.update();
-                       };
+
+                       point.push({
+                           x: pos.x,
+                           y: pos.y
+                       });
+                       curve = new drawLine(ctx, false, false, 'curve', point);
+                       ctx.clearRect(0, 0, w, h);
+                       reDraw();
+                       curve.update();
+
                    };
                };
                back.onmouseup = function(e) {
                    mousedown = false;
+                   var index = 0;
+                   final.push(point[0]);
+                   for (var i = 1; i < point.length; i++) {
+                     if (Math.abs(point[index].x - point[i].x) >= 40 && Math.abs(point[index].y - point[i].y) >= 40) {
+                       index = i;
+                       final.push(point[i]);
+                     }
+                   };
+                   if (final.indexOf(point[point.length-1])===-1) {
+                    final.push(point[point.length-1]);
+                   }
                    if (curve) {
+                       curve.point = final;
+                       console.log(final,point,curve);
+                       ctx.clearRect(0, 0, w, h);
+                       reDraw();
+                       curve.update();
                        lineStack.push(curve);
                    };
                    var sta = ctx.getImageData(0, 0, w, h);
