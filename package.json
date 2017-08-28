@@ -1,7 +1,7 @@
 {
   "name": "ball",
   "version": "0.0.1",
-  "description": "在线画板工具,演�足球教学演示公�工具",
+  "description": "在线画板工具,足球教学演示",
   "main": "gulpfile.js",
   "scripts": {
     "test": "lt --port 3000",
@@ -9,8 +9,7 @@
   },
   "dependencies": {
     "browser-sync": "^2.18.8",
-    "gulp": "^3.9.1",
-    "leancloud-realtime": "^3.4.1"
+    "gulp": "^3.9.1"
   },
   "keywords": [
     "canvas"

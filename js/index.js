@@ -6,7 +6,7 @@
                ballTool = document.getElementsByClassName("ball")[0],
                playerTool = document.getElementsByClassName("player")[0],
                lineTool = document.getElementsByClassName("line")[0],
-               reactTool = document.getElementsByClassName("react")[0],
+               reactTool = document.getElementsByClassName("rect")[0],
                textTool = document.getElementsByClassName("text")[0],
                curveTool = document.getElementsByClassName("curve")[0],
                circleTool = document.getElementsByClassName("circle")[0],
@@ -20,41 +20,17 @@
                elemList = [moveTool, ballTool, playerTool, lineTool, reactTool, textTool, curveTool, circleTool, downTool],
                lineStack = new objStack,
                circleStack = new objStack,
-               reactStack = new objStack,
                playerStack = new objStack,
                textStack = new objStack,
                rectStack = new objStack,
                ellipseStack = new objStack,
                ballStack = new objStack,
+               status = new statusStack,
                lineType = 'fullline',
-               status = new statusStack;
-           //定制右键菜单
-           var menu = document.getElementsByClassName('menu')[0];
-           back.oncontextmenu = function(event) {
-               var event = back.getEvent(event);
-               if (document.all) {
-                   window.event.returnValue = false;
-               } else {
-                   event.preventDefault();
-               }
-               if (menu.style.display == 'block') {
-                   menu.style.display = 'none';
-                   return;
-               }
-               menu.style.display = 'block';
-               menu.style.top = event.pageY + 'px';
-               menu.style.left = event.pageX + 20 + 'px';
-           };
-           menu.onclick = function(ev) {
-               var target = menu.getTarget(menu.getEvent(ev));
-               if (target.nodeType == 1 && target.nodeName == 'LI') {
-                   flag = target.className;
-                   menu.style.display = 'none';
-
-               };
-           };
+               stackArray = [lineStack, circleStack, playerStack, textStack, rectStack, ellipseStack, ballStack];
+               window.rectStack = rectStack;
            //初始化画布
-           // (function init() {
+             
            //绘制虚线      
            //左边工具栏功能控制
            function setShadow(ele) {
@@ -77,12 +53,12 @@
                        index = cn.search(/\w$/g) + 1;
                    } else index = cn.search(/\s/g);
                    flag = this.className.slice(0, index);
-                   console.log(flag);
-
                })
            };
            ctx.canvas.width = w;
            ctx.canvas.height = h;
+           status.record(stackArray);
+           status.push(ctx.getImageData(0, 0, w, h));
            undoTool.onclick = function() {
                for (var i = 0; i < elemList.length; i++) {
                    var cn = elemList[i].className,
@@ -103,6 +79,38 @@
                if (sta) {
                    ctx.putImageData(sta, 0, 0);
                }
+           };
+           //定制右键菜单
+           var menu = document.getElementsByClassName('menu')[0];
+           back.oncontextmenu = function(event) {
+               var event = back.getEvent(event);
+               if (document.all) {
+                   window.event.returnValue = false;
+               } else {
+                   event.preventDefault();
+               }
+               if (menu.style.display == 'block') {
+                   menu.style.display = 'none';
+                   return;
+               }
+               menu.style.display = 'block';
+               menu.style.top = event.pageY + 'px';
+               menu.style.left = event.pageX + 10 + 'px';
+           };
+           menu.onclick = function(ev) {
+               var target = menu.getTarget(menu.getEvent(ev)).parentNode;
+               if (target.nodeType == 1 && target.nodeName == 'LI') {
+                   flag = target.className;
+                   switch (flag) {
+                       case 'undo':
+                           undoTool.click();
+                           break;
+                       case 'redo':
+                           redoTool.click();
+                           break;
+                   }
+                   menu.style.display = 'none';
+               };
            };
            lineTool.onclick = function(e) {
                    var ev = e || window.e;
@@ -136,7 +144,7 @@
            //     this.addEvent('mousemove', f2(e));
            //     this.addEvent('mouseup', f3(e));
            // };
-           //编辑
+           //缩放
            function amplify() {
                var mousedown = false,
                    obj = null;
@@ -295,7 +303,7 @@
                            var inputText = document.getElementById("inputText");
                            inputText.style.display = 'block';
                            inputText.style.top = pos.y + 'px';
-                           inputText.style.left = pos.x + 'px';
+                           inputText.style.left = pos.x + 15 + 'px';
                            inputText.focus();
                            document.onkeydown = function(e) {
                                var ev = e || window.e;
@@ -350,7 +358,6 @@
                    if (mousedown) {
                        var ev = e || window.e;
                        var pos = canvasMousePos(back, ev);
-
                        point.push({
                            x: pos.x,
                            y: pos.y
@@ -367,17 +374,17 @@
                    var index = 0;
                    final.push(point[0]);
                    for (var i = 1; i < point.length; i++) {
-                     if (Math.abs(point[index].x - point[i].x) >= 40 && Math.abs(point[index].y - point[i].y) >= 40) {
-                       index = i;
-                       final.push(point[i]);
-                     }
+                       if (Math.abs(point[index].x - point[i].x) >= 40 && Math.abs(point[index].y - point[i].y) >= 40) {
+                           index = i;
+                           final.push(point[i]);
+                       }
                    };
-                   if (final.indexOf(point[point.length-1])===-1) {
-                    final.push(point[point.length-1]);
+                   if (final.indexOf(point[point.length - 1]) === -1) {
+                       final.push(point[point.length - 1]);
                    }
                    if (curve) {
                        curve.point = final;
-                       console.log(final,point,curve);
+                       console.log(final, point, curve);
                        ctx.clearRect(0, 0, w, h);
                        reDraw();
                        curve.update();
@@ -414,10 +421,13 @@
                back.onmouseup = function(e) {
                    mousedown = false;
                    var sta = ctx.getImageData(0, 0, w, h);
-                   status.push(sta);
                    if (rect) {
                        rect.first = true;
+                       status.push(sta);
+                       console.log(rectStack);
                        rectStack.push(rect);
+                       reDraw();
+                       console.log(rectStack);
                    }
                };
            };
@@ -497,11 +507,13 @@
                html2canvas(document.body, {
                    height: h + 20,
                    onrendered: function(canvas) {
-
                        var url = canvas.toDataURL();
-                       var triggerDownload = $("<a>").attr("href", url).attr("download", new Date() + ".png").appendTo("body");
-                       triggerDownload[0].click();
-                       triggerDownload.remove();
+                        var a = document.createElement('a');
+                       a.href = url;
+                       a.download = new Date() + ".png";
+                       document.body.appendChild(a);
+                       a.click();
+                       document.body.removeChild(a);
                    }
                });
            }
@@ -522,7 +534,7 @@
                        case 'curve':
                            curve()
                            break;
-                       case 'react':
+                       case 'rect':
                            rect();
                            break;
                        case 'player':

@@ -1,10 +1,1 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg width="23px" height="19px" viewBox="0 0 23 19" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
-    <!-- Generator: Sketch 3.4.1 (15681) - http://www.bohemiancoding.com/sketch -->
-    <title>ellipse-tool-icon</title>
-    <desc>Created with Sketch.</desc>
-    <defs></defs>
-    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
-        <path d="M11.5,18 C17.2989899,18 22,14.1944204 22,9.5 C22,4.80557963 17.2989899,1 11.5,1 C5.70101013,1 1,4.80557963 1,9.5 C1,14.1944204 5.70101013,18 11.5,18 Z" id="ellipse-tool" stroke="#1B1B1B" sketch:type="MSShapeGroup"></path>
-    </g>
-</svg>
+<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg t="1503757136342" class="icon" style="" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4790" xmlns:xlink="http://www.w3.org/1999/xlink" width="64" height="64"><defs><style type="text/css"></style></defs><path d="M512 79.911385C229.257846 79.911385 0 273.368615 0 512c0 238.631385 229.257846 432.088615 512 432.088615 282.781538 0 512-193.457231 512-432.088615C1024 273.368615 794.781538 79.911385 512 79.911385zM512 841.688615c-225.831385 0-409.6-147.928615-409.6-329.688615 0-181.799385 183.768615-329.688615 409.6-329.688615S921.6 330.200615 921.6 512C921.6 693.76 737.831385 841.688615 512 841.688615z" p-id="4791"></path></svg>

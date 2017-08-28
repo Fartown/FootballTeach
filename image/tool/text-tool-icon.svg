@@ -1,12 +1,1 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg width="40px" height="40px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
-    <!-- Generator: Sketch 3.3.3 (12081) - http://www.bohemiancoding.com/sketch -->
-    <title>text-tool-icon copy</title>
-    <desc>Created with Sketch.</desc>
-    <defs></defs>
-    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
-        <text id="T-Copy" sketch:type="MSTextLayer" font-family="Georgia" font-size="32" font-weight="normal" fill="#515151">
-            <tspan x="10" y="31">T</tspan>
-        </text>
-    </g>
-</svg>
+<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg t="1503756910981" class="icon" style="" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2770" xmlns:xlink="http://www.w3.org/1999/xlink" width="64" height="64"><defs><style type="text/css"></style></defs><path d="M894.2591 63.221904l10.591219 227.583299-31.763424 0c-14.131859-74.097602-35.304064-121.732505-63.506383-142.904711-24.723078-21.161972-75.908854-31.753191-153.485697-31.753191l-74.097602 0 0 693.320649c0 49.456389 7.030114 81.20958 21.172205 95.269807 17.621333 14.142092 54.665017 22.99369 111.141286 26.462698l0 26.462698-396.930241 0 0-26.462698c56.394405-3.469008 91.708702-14.060227 105.84056-31.753191 14.060227-10.591219 21.172205-45.813419 21.172205-105.850793L444.393229 116.1473l-74.097602 0c-77.648474 0-128.83425 10.591219-153.475464 31.753191-28.284183 21.172205-49.456389 68.807109-63.516616 142.904711l-31.753191 0 10.591219-227.583299L894.2591 63.221904z" fill="#272636" p-id="2771"></path></svg>
