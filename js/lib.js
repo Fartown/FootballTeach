@@ -283,6 +283,16 @@
         if (start) {
             this.start = start;
             this.end = end;
+            this.cache = {
+                start: {
+                    x: start.x,
+                    y: start.y
+                },
+                end: {
+                    x: end.x,
+                    y: end.y
+                }
+            }
         };
         this.ctx = ctx;
         this.control = control;
@@ -293,6 +303,7 @@
             this.point = point;
             this.arrow = getArrow(point[point.length - 2], point[point.length - 1], Math.PI / 6, 15);
         };
+
         this.update();
     };
     drawLine.prototype = {
@@ -350,6 +361,41 @@
             ctx.closePath();
             ctx.fill();
             ctx.restore();
+        },
+        inCircle: function(x, y) {
+            if (this.control !== 'curve') {
+                var x1 = this.start.x;
+                var y1 = this.start.y;
+                var x2 = this.end.x;
+                var y2 = this.end.y;
+                var distance = 0;
+                var ACcosin = (x2 - x1) * (x - x1) + (y2 - y1) * (y - y1);
+                if (ACcosin <= 0) {
+                    var square = (x - x1) * (x - x1) + (y - y1) * (y - y1);
+                    distance = Math.sqrt(square);
+                } else {
+                    var AB = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
+                    if (AB <= ACcosin) {
+                        distance = Math.sqrt((x - x2) * (x - x2) + (y - y2) * (y - y2));
+                    } else {
+                        var rate = ACcosin / AB;
+                        var px = x1 + (x2 - x1) * rate;
+                        var py = y1 + (y2 - y1) * rate;
+                        distance = Math.sqrt((x - px) * (x - px) + (py - y) * (py - y));
+                    }
+                };
+                if (distance <= 20) {
+                    return true;
+                } else {
+                    return false;
+                };
+            };
+        },
+        move: function(x, y) {
+            this.start.x = x + this.cache.start.x;
+            this.start.y = y + this.cache.start.y;
+            this.end.x = x + this.cache.end.x;
+            this.end.y = y + this.cache.end.y;
         },
         update: function() {
             if (this.control == 'fullline') {

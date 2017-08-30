@@ -28,7 +28,11 @@
                status = new statusStack,
                lineType = 'fullline',
                stackArray = [lineStack, circleStack, playerStack, textStack, rectStack, ellipseStack, ballStack],
-               rectStack = rectStack;
+               rectStack = rectStack,
+               curveFlag = {
+                   curve: null,
+                   point: []
+               };;
 
            //左边工具栏功能控制
            function setShadow(ele) {
@@ -51,6 +55,24 @@
                        index = cn.search(/\w$/g) + 1;
                    } else index = cn.search(/\s/g);
                    flag = this.className.slice(0, index);
+                   if (flag === 'curve') {
+                       if (curveFlag.curve) {
+                           var index = 0;
+                           var final = [];
+                           var curve = curveFlag.curve;
+                           if (curve) {
+                               ctx.clearRect(0, 0, w, h);
+                               reDraw();
+                               curve.update();
+                               lineStack.push(curve);
+                               status.push([lineStack.status.length, circleStack.status.length, playerStack.status.length, textStack.status.length, rectStack.status.length, ellipseStack.status.length, ballStack.status.length]);
+                               curveFlag = {
+                                   curve: null,
+                                   point: []
+                               };
+                           };
+                       };
+                   };
                })
            };
            ctx.canvas.width = w;
@@ -99,8 +121,10 @@
                    switch (flag) {
                        case 'undo':
                            undoTool.click();
+                           undoTool.click();
                            break;
                        case 'redo':
+                           redoTool.click();
                            redoTool.click();
                            break;
                        case 'save':
@@ -199,9 +223,11 @@
                var mousedown = false;
                var obj = null;
                back.onclick = null;
+               var start = null;
                back.onmousedown = function(e) {
                    var event = event || window.event;
                    var pos = canvasMousePos(back, event);
+                   start = pos;
                    //确定鼠标点击的对象
                    function clickTarget(Stack) {
                        Stack.status.forEach(function(pla) {
@@ -219,12 +245,17 @@
                    clickTarget(ballStack);
                    clickTarget(rectStack);
                    clickTarget(ellipseStack);
+                   clickTarget(lineStack);
                };
                back.onmousemove = function(e) {
                    if (mousedown) {
                        var ev = e || window.e;
                        var pos = canvasMousePos(back, ev);
-                       obj.move(pos.x, pos.y);
+                       if (obj instanceof(drawLine)) {
+                           obj.move(pos.x - start.x, pos.y - start.y);
+                       } else {
+                           obj.move(pos.x, pos.y);
+                       };
                        ctx.clearRect(0, 0, w, h);
                        reDraw();
                        obj.update();
@@ -338,60 +369,79 @@
            };
 
            function curve() {
-               var point = [];
-               var mousedown = false;
-               var curve = null;
-               var final = [];
-               back.onclick = null;
-               back.onmousedown = function(event) {
+               back.onclick = function(event) {
                    var e = event || window.event;
                    var pos = canvasMousePos(back, e);
                    mousedown = true;
-                   point.push({
+                   curveFlag.point.push({
                        x: pos.x,
                        y: pos.y
                    });
-               };
-               back.onmousemove = function(e) {
-                   if (mousedown) {
-                       var ev = e || window.e;
-                       var pos = canvasMousePos(back, ev);
-                       point.push({
-                           x: pos.x,
-                           y: pos.y
-                       });
-                       curve = new drawLine(ctx, false, false, 'curve', point);
-                       ctx.clearRect(0, 0, w, h);
-                       reDraw();
-                       curve.update();
-
-                   };
-               };
-               back.onmouseup = function(e) {
-                   mousedown = false;
-                   var index = 0;
-                   final.push(point[0]);
-                   for (var i = 1; i < point.length; i++) {
-                       if (Math.abs(point[index].x - point[i].x) >= 40 && Math.abs(point[index].y - point[i].y) >= 40) {
-                           index = i;
-                           final.push(point[i]);
-                       }
-                   };
-                   if (final.indexOf(point[point.length - 1]) === -1) {
-                       final.push(point[point.length - 1]);
+                   if (curveFlag.point.length === 1) {
+                       var pla = new SoccerPlayer(ctx, pos, 1, 1, 'white', ' ');
                    }
-                   if (curve) {
-                       curve.point = final;
+                   if (curveFlag.point.length > 1) {
+                       curveFlag.curve = new drawLine(ctx, false, false, 'curve', curveFlag.point);
                        ctx.clearRect(0, 0, w, h);
                        reDraw();
-                       curve.update();
-                       lineStack.push(curve);
-                       status.push([lineStack.status.length, circleStack.status.length, playerStack.status.length, textStack.status.length, rectStack.status.length, ellipseStack.status.length, ballStack.status.length]);
+                       curveFlag.curve.update();
                    };
-                   back.onmousedown = null;
-                   back.onmousemove = null;
-                   back.onmouseup = null;
-               };
+                   console.log(curveFlag.point)
+               }
+               back.onmousedown = null;
+               back.onmousemove = null;
+               back.onmouseup = null;
+               // back.onmouseup = null;
+               // back.onclick = null;
+               // back.onmousedown = function(event) {
+               //     var e = event || window.event;
+               //     var pos = canvasMousePos(back, e);
+               //     mousedown = true;
+               //     point.push({
+               //         x: pos.x,
+               //         y: pos.y
+               //     });
+               // };
+               // back.onmousemove = function(e) {
+               //     if (mousedown) {
+               //         var ev = e || window.e;
+               //         var pos = canvasMousePos(back, ev);
+               //         point.push({
+               //             x: pos.x,
+               //             y: pos.y
+               //         });
+               //         curve = new drawLine(ctx, false, false, 'curve', point);
+               //         ctx.clearRect(0, 0, w, h);
+               //         reDraw();
+               //         curve.update();
+               //     };
+               // };
+               // back.onmouseup = function(e) {
+               //     mousedown = false;
+               //     var index = 0;
+               //     var final = [];
+               //     final.push(point[0]);
+               //     for (var i = 1; i < point.length; i++) {
+               //         if (Math.abs(point[index].x - point[i].x) >= 40 && Math.abs(point[index].y - point[i].y) >= 40) {
+               //             index = i;
+               //             final.push(point[i]);
+               //         }
+               //     };
+               //     if (final.indexOf(point[point.length - 1]) === -1) {
+               //         final.push(point[point.length - 1]);
+               //     }
+               //     if (curve) {
+               //         curve.point = final;
+               //         ctx.clearRect(0, 0, w, h);
+               //         reDraw();
+               //         curve.update();
+               //         lineStack.push(curve);
+               //         status.push([lineStack.status.length, circleStack.status.length, playerStack.status.length, textStack.status.length, rectStack.status.length, ellipseStack.status.length, ballStack.status.length]);
+               //     };
+               //     back.onmousedown = null;
+               //     back.onmousemove = null;
+               //     back.onmouseup = null;
+               // };
            };
 
            function rect() {
