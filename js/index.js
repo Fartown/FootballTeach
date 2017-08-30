@@ -27,11 +27,9 @@
                ballStack = new objStack,
                status = new statusStack,
                lineType = 'fullline',
-               stackArray = [lineStack, circleStack, playerStack, textStack, rectStack, ellipseStack, ballStack];
-               window.rectStack = rectStack;
-           //初始化画布
-             
-           //绘制虚线      
+               stackArray = [lineStack, circleStack, playerStack, textStack, rectStack, ellipseStack, ballStack],
+               rectStack = rectStack;
+
            //左边工具栏功能控制
            function setShadow(ele) {
                for (var i = 0; i < elemList.length; i++) {
@@ -58,7 +56,7 @@
            ctx.canvas.width = w;
            ctx.canvas.height = h;
            status.record(stackArray);
-           status.push(ctx.getImageData(0, 0, w, h));
+           status.push([lineStack.status.length, circleStack.status.length, playerStack.status.length, textStack.status.length, rectStack.status.length, ellipseStack.status.length, ballStack.status.length]);
            undoTool.onclick = function() {
                for (var i = 0; i < elemList.length; i++) {
                    var cn = elemList[i].className,
@@ -68,17 +66,14 @@
                    } else index = cn.search(/\s/g);
                    elemList[i].className = elemList[i].className.slice(0, index);
                };
-               var sta = status.undo();
-               if (sta) {
-                   ctx.putImageData(sta, 0, 0);
-               }
-
+               status.undo();
+               ctx.clearRect(0, 0, w, h);
+               reDraw();
            };
            redoTool.onclick = function() {
-               var sta = status.redo()
-               if (sta) {
-                   ctx.putImageData(sta, 0, 0);
-               }
+               status.redo();
+               ctx.clearRect(0, 0, w, h);
+               reDraw();
            };
            //定制右键菜单
            var menu = document.getElementsByClassName('menu')[0];
@@ -108,6 +103,16 @@
                        case 'redo':
                            redoTool.click();
                            break;
+                       case 'save':
+                           downImg();
+                           break;
+                       case 'move':
+                           moveTool.click();
+                           break;
+                       case 'amplify':
+                           textTool.click();
+                           break
+
                    }
                    menu.style.display = 'none';
                };
@@ -186,8 +191,7 @@
                };
                back.onmouseup = function() {
                    mousedown = false;
-                   var sta = ctx.getImageData(0, 0, w, h);
-                   status.push(sta);
+                   status.push([lineStack.status.length, circleStack.status.length, playerStack.status.length, textStack.status.length, rectStack.status.length, ellipseStack.status.length, ballStack.status.length]);
                };
            }
            //拖拽对象
@@ -224,30 +228,26 @@
                        ctx.clearRect(0, 0, w, h);
                        reDraw();
                        obj.update();
-                       console.log(obj)
                    }
                };
                back.onmouseup = function(e) {
                    mousedown = false;
-                   var sta = ctx.getImageData(0, 0, w, h);
-                   status.push(sta);
+                   status.push([lineStack.status.length, circleStack.status.length, playerStack.status.length, textStack.status.length, rectStack.status.length, ellipseStack.status.length, ballStack.status.length]);
                };
            };
            // drag(s1);
            function player() {
-               console.log('playerStack');
                var pos = {};
                back.onmousedown = null;
                back.onmousemove = null;
                back.onmouseup = null;
                back.onclick = function(e) {
-                   console.log('player');
                    var ev = e || window.e;
                    pos = canvasMousePos(back, ev);
                    var pla = new SoccerPlayer(ctx, pos, 11, 2.5, 'blue', '6');
                    playerStack.push(pla);
-                   var sta = ctx.getImageData(0, 0, w, h);
-                   status.push(sta);
+                   status.push([lineStack.status.length, circleStack.status.length, playerStack.status.length, textStack.status.length, rectStack.status.length, ellipseStack.status.length, ballStack.status.length]);
+
                };
            };
 
@@ -280,9 +280,9 @@
                    mousedown = false;
                    if (fullLine) {
                        lineStack.push(fullLine);
+                       status.push([lineStack.status.length, circleStack.status.length, playerStack.status.length, textStack.status.length, rectStack.status.length, ellipseStack.status.length, ballStack.status.length]);
                    }
-                   var sta = ctx.getImageData(0, 0, w, h);
-                   status.push(sta);
+
                };
            };
 
@@ -313,8 +313,7 @@
                                    ctx.clearRect(0, 0, w, h);
                                    pla.update();
                                    reDraw();
-                                   var sta = ctx.getImageData(0, 0, w, h);
-                                   status.push(sta);
+                                   status.push([lineStack.status.length, circleStack.status.length, playerStack.status.length, textStack.status.length, rectStack.status.length, ellipseStack.status.length, ballStack.status.length]);
                                }
                            }
                        }
@@ -331,8 +330,7 @@
                                textStack.push(text);
                                inputText.value = '';
                                inputText.style.display = 'none';
-                               var sta = ctx.getImageData(0, 0, w, h);
-                               status.push(sta);
+                               status.push([lineStack.status.length, circleStack.status.length, playerStack.status.length, textStack.status.length, rectStack.status.length, ellipseStack.status.length, ballStack.status.length]);
                            }
                        }
                    }
@@ -384,14 +382,12 @@
                    }
                    if (curve) {
                        curve.point = final;
-                       console.log(final, point, curve);
                        ctx.clearRect(0, 0, w, h);
                        reDraw();
                        curve.update();
                        lineStack.push(curve);
+                       status.push([lineStack.status.length, circleStack.status.length, playerStack.status.length, textStack.status.length, rectStack.status.length, ellipseStack.status.length, ballStack.status.length]);
                    };
-                   var sta = ctx.getImageData(0, 0, w, h);
-                   status.push(sta);
                    back.onmousedown = null;
                    back.onmousemove = null;
                    back.onmouseup = null;
@@ -423,11 +419,8 @@
                    var sta = ctx.getImageData(0, 0, w, h);
                    if (rect) {
                        rect.first = true;
-                       status.push(sta);
-                       console.log(rectStack);
                        rectStack.push(rect);
-                       reDraw();
-                       console.log(rectStack);
+                       status.push([lineStack.status.length, circleStack.status.length, playerStack.status.length, textStack.status.length, rectStack.status.length, ellipseStack.status.length, ballStack.status.length]);
                    }
                };
            };
@@ -441,7 +434,6 @@
                    var event = event || window.event;
                    start = canvasMousePos(back, event);
                    mousedown = true;
-                   console.log(start);
                };
                back.onmousemove = function(e) {
                    if (mousedown) {
@@ -459,10 +451,9 @@
                };
                back.onmouseup = function(e) {
                    mousedown = false;
-                   var sta = ctx.getImageData(0, 0, w, h);
-                   status.push(sta);
                    if (ellipse) {
                        ellipseStack.push(ellipse);
+                       status.push([lineStack.status.length, circleStack.status.length, playerStack.status.length, textStack.status.length, rectStack.status.length, ellipseStack.status.length, ballStack.status.length]);
                    }
                };
            };
@@ -508,7 +499,7 @@
                    height: h + 20,
                    onrendered: function(canvas) {
                        var url = canvas.toDataURL();
-                        var a = document.createElement('a');
+                       var a = document.createElement('a');
                        a.href = url;
                        a.download = new Date() + ".png";
                        document.body.appendChild(a);

@@ -208,18 +208,18 @@
         this.index = 0;
         this.cache = [];
         this.arr = [];
-        this.arrCache = [[]];
+        this.arrCache = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
     };
     statusStack.prototype = {
         push: function(val) {
-            // for (var stack of this.arr) {
-            //     var len = stack.status.length - this.index;
-            //     if (len >= 0) {
-            //         stack.status.length = len + 1;
-            //     };
-            //     // console.log(stack, len);
-            // };
-            // debugger;
             this.status.push(val);
             this.index = 0;
             if (this.status.length > 12) {
@@ -232,31 +232,29 @@
             if (this.status.length >= 1) {
                 var sta = this.status.pop();
                 this.cache.push(sta);
-                this.index++;
-                return sta;
+                this.index = 1;
+                var that = this;
+                this.arr.forEach(function(element, index) {
+                    var fullstack = element.status.concat(that.arrCache[index]);
+                    that.arrCache[index] = fullstack.slice(sta[index], );
+                    element.status = fullstack.slice(0, sta[index]);
+                });
             }
-            this.arr.forEach( function(element, index) {
-              if (element.status.length>=1) {
-                this.arrCache[index].push(element.status.pop());
-              }
-            });
         },
         redo: function() {
             if (this.cache.length >= 1) {
                 var sta = this.cache.pop();
                 this.status.push(sta);
-                this.index--;
-                return sta;
+                this.index = 2;
+                // return sta;
+                var that = this;
+                this.arr.forEach(function(element, index) {
+                    var cache = that.arrCache[index];
+                    var fullstack = element.status.concat(cache);
+                    element.status = fullstack.slice(0, sta[index]);
+                    that.arrCache[index] = fullstack.slice(sta[index], )
+                });
             }
-            this.arr.forEach( function(element, index) {
-              var cache = this.arrCache[index];
-              if (cache||cache.length>=1) {
-                
-              }
-            });
-            // if (this.currentIndex > 0) {
-            //   return this.status[this.status.length - (--this.currentIndex)];
-            // }
         },
         record: function(arr) {
             this.arr = arr;
@@ -295,8 +293,6 @@
             this.point = point;
             this.arrow = getArrow(point[point.length - 2], point[point.length - 1], Math.PI / 6, 15);
         };
-        console.log(this.arrow);
-        console.log(this.start, this.end);
         this.update();
     };
     drawLine.prototype = {
@@ -307,16 +303,7 @@
             this.ctx.beginPath();
             this.ctx.moveTo(this.start.x, this.start.y);
             this.ctx.lineTo(this.end.x, this.end.y);
-            // var arr = this.arr;
-            // this.ctx.moveTo(arr[0],arr[1]);
             this.ctx.lineTo(this.end.x, this.end.y)
-                // this.ctx.lineTo(arr[2],arr[3]);
-                //下面这个计算是用来在箭头与虚线的交叉点。直角三角形计算原理。。
-                // this.ctx.lineTo(this.end.x-parseInt(25*Math.cos(arr[4]*Math.PI/180)), this.end.y-parseInt(25*Math.sin(arr[4]*Math.PI/180)));
-                // this.ctx.lineTo(arr[0],arr[1]);
-                // this.ctx.lineTo(this.arrow.left.x, this.arrow.left.y);
-                // this.ctx.moveTo(this.end.x, this.end.y);
-                // this.ctx.lineTo(this.arrow.right.x, this.arrow.right.y);
             this.ctx.closePath();
             this.ctx.stroke();
             this.ctx.restore();
